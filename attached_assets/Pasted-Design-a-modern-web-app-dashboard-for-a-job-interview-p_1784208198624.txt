@@ -1,0 +1,255 @@
+Design a modern web app dashboard for a job interview preparation platform.**
+
+Create a clean, premium, minimalist UI with soft shadows, rounded corners (20–24px), subtle gradients, and plenty of white space. The overall style should feel similar to Duolingo, Google Material 3, and Linear.
+
+### Theme
+
+* Primary color: #0357EE blue ribbon
+* Background: White (#FFFFFF)
+* Secondary colors:
+
+  * Blue (#4F7DFF)
+  * Green (#4CAF50)
+  * Orange (#FF9F43)
+  * Light Purple (#F5F3FF)
+* Soft gradient backgrounds
+* Glassmorphism-inspired cards with very light shadows
+* Friendly illustrations
+* Modern rounded icons
+
+---
+
+### Top Navigation
+
+Include:
+
+* Hamburger menu on the left
+* Notification bell with a small unread badge
+* Circular profile picture on the right
+
+---
+
+### Welcome Section
+
+Large heading:
+
+> Hello, Adekunle 👋
+
+Subtitle:
+
+> Let's practice and get hired!
+
+---
+
+### Hero Banner
+
+Large rounded promotional card.
+
+Left side:
+
+Headline:
+
+> Practice today,
+> Get hired tomorrow.
+
+Description:
+
+> Real questions.
+> Real practice.
+> Real results.
+
+Purple CTA button:
+
+> Start Practice →
+
+Right side:
+
+A flat illustration showing:
+
+* Clipboard
+* Checklist
+* Resume
+* Pen
+
+Use a soft lavender background.
+
+---
+
+### Practice Categories
+
+Section title:
+
+> Practice by Category
+
+Right aligned:
+
+> View all
+
+Create five rounded square cards.
+
+Each card contains:
+
+Icon
+
+Title
+
+Question count
+
+Categories:
+
+💼 Aptitude
+
+320+ Questions
+
+🧮 Numerical
+
+250+ Questions
+
+💬 Verbal
+
+280+ Questions
+
+👥 HR Interview
+
+150+ Questions
+
+</> Technical
+
+400+ Questions
+
+Each card should have a different pastel background color.
+
+---
+
+### Daily Challenge Card
+
+Large white card.
+
+Left:
+
+Golden trophy illustration.
+
+Center:
+
+Title:
+
+Daily Challenge
+
+Description:
+
+> 10 questions a day keeps rejection away.
+
+Purple text button:
+
+Start Challenge →
+
+Right:
+
+Circular progress indicator.
+
+Display:
+
+6/10
+
+Completed
+
+Use purple progress ring.
+
+---
+
+### Recent Practice Section
+
+Title:
+
+Recent Practice
+
+Right:
+
+View all
+
+Create list cards.
+
+Example 1:
+
+Green icon
+
+Numerical Ability Test
+
+20 Questions
+
+85% Score
+
+Today
+
+85% in green.
+
+Example 2:
+
+Orange icon
+
+Verbal Reasoning Test
+
+15 Questions
+
+73% Score
+
+Yesterday
+
+73% in orange.
+
+Cards should have rounded corners and subtle shadows.
+
+---
+
+### Bottom Navigation
+
+Fixed navigation bar with rounded top corners.
+
+Five icons:
+
+🏠 Home 
+
+📄 Practice
+
+🕒 Mock Tests
+
+📊 Progress
+
+👤 Profile
+
+Inactive icons should be gray.
+
+---
+
+### Typography
+
+Use:
+
+* Inter
+* SF Pro Display
+* Poppins
+
+Large bold headings
+
+Medium-weight section titles
+
+Soft gray subtitles
+
+---
+
+### Design Style
+
+The UI should feel:
+
+* Premium
+* Clean
+* Minimal
+* Friendly
+* Modern SaaS
+* web app
+* Highly polished
+* Production-ready
+* Dribbble-quality
+* Material Design 3 inspired
+
+Use generous spacing, rounded components, subtle gradients, and smooth visual hierarchy. Avoid clutter and keep the interface elegant
