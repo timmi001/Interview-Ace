@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useUser, useClerk } from "@clerk/react";
+import { api, type UserProfile } from "@/lib/api";
 import { 
   Menu, Bell, ChevronRight, ChevronLeft, Home, FileText, Clock, BarChart2, User, 
   Check, Lock, Trophy, Star, Globe, Shield, HelpCircle, Heart, Share2, Pencil, 
@@ -15,13 +17,29 @@ const CATEGORIES = [
 ];
 
 export function Dashboard() {
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [page, setPage] = useState("home");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+    api.getMe().then(setProfile).catch(console.error);
+  }, [isLoaded, user?.id]);
 
   const triggerToast = () => {
     setToastMessage("Quiz Starting...");
     setTimeout(() => { setToastMessage(null); }, 1500);
   };
+
+  const displayName = user?.firstName || user?.username || "there";
+  const initials = (() => {
+    if (user?.firstName && user?.lastName) return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    if (user?.firstName) return user.firstName.slice(0, 2).toUpperCase();
+    if (user?.username) return user.username.slice(0, 2).toUpperCase();
+    return "ME";
+  })();
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center font-['Inter']">
@@ -32,11 +50,11 @@ export function Dashboard() {
             {toastMessage}
           </div>
         )}
-        {page === "home" && <HomeView setPage={setPage} />}
+        {page === "home" && <HomeView setPage={setPage} displayName={displayName} initials={initials} />}
         {page === "practice" && <PracticeView setPage={setPage} triggerToast={triggerToast} />}
         {page === "mock-tests" && <MockTestsView setPage={setPage} triggerToast={triggerToast} />}
-        {page === "progress" && <ProgressView setPage={setPage} />}
-        {page === "profile" && <ProfileView setPage={setPage} />}
+        {page === "progress" && <ProgressView setPage={setPage} profile={profile} />}
+        {page === "profile" && <ProfileView setPage={setPage} displayName={displayName} initials={initials} profile={profile} signOut={() => signOut()} />}
         {["aptitude", "numerical", "verbal", "hr-interview", "technical"].includes(page) && (
           <CategoryView categoryId={page} setPage={setPage} triggerToast={triggerToast} />
         )}
@@ -48,7 +66,7 @@ export function Dashboard() {
   );
 }
 
-function HomeView({ setPage }: { setPage: (p: string) => void }) {
+function HomeView({ setPage, displayName, initials }: { setPage: (p: string) => void; displayName: string; initials: string }) {
   return (
     <>
       <header className="flex items-center justify-between px-6 py-4 pt-8">
@@ -60,12 +78,12 @@ function HomeView({ setPage }: { setPage: (p: string) => void }) {
             <Bell className="w-6 h-6 text-slate-700" />
             <span className="absolute -top-0 -right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
           </button>
-          <button onClick={() => setPage("profile")} className="w-10 h-10 rounded-full bg-[#0357EE] text-white flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm font-['Poppins'] hover:opacity-90 transition-opacity">AK</button>
+          <button onClick={() => setPage("profile")} className="w-10 h-10 rounded-full bg-[#0357EE] text-white flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm font-['Poppins'] hover:opacity-90 transition-opacity">{initials}</button>
         </div>
       </header>
       <main className="flex-1 overflow-y-auto pb-28 px-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <section className="mb-6">
-          <h1 className="text-2xl font-bold font-['Poppins'] text-slate-900 tracking-tight">Hello, Adekunle 👋</h1>
+          <h1 className="text-2xl font-bold font-['Poppins'] text-slate-900 tracking-tight">Hello, {displayName} 👋</h1>
           <p className="text-slate-500 text-sm mt-1">Let's practice and get hired!</p>
         </section>
         <section className="mb-8">
@@ -278,7 +296,8 @@ function MockTestsView({ setPage, triggerToast }: any) {
   );
 }
 
-function ProgressView({ setPage }: any) {
+function ProgressView({ setPage, profile }: any) {
+  const stats = profile?.stats;
   return (
     <div className="flex-1 overflow-y-auto pb-28 [&::-webkit-scrollbar]:hidden bg-slate-50/50">
       <header className="px-6 py-4 pt-8 sticky top-0 bg-white/90 backdrop-blur-md z-40">
@@ -288,9 +307,9 @@ function ProgressView({ setPage }: any) {
       <div className="px-6 py-2">
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { icon: FileText, bg: "bg-blue-50", color: "text-blue-500", val: "248", label: "Practiced" },
-            { icon: TrendingUp, bg: "bg-green-50", color: "text-green-500", val: "79%", label: "Avg Score" },
-            { icon: Flame, bg: "bg-orange-50", color: "text-orange-500", val: "7", label: "Day Streak" },
+            { icon: FileText, bg: "bg-blue-50", color: "text-blue-500", val: stats ? String(stats.totalSessions) : "—", label: "Practiced" },
+            { icon: TrendingUp, bg: "bg-green-50", color: "text-green-500", val: stats ? `${stats.avgScore}%` : "—", label: "Avg Score" },
+            { icon: Flame, bg: "bg-orange-50", color: "text-orange-500", val: stats ? String(stats.currentStreak) : "—", label: "Day Streak" },
           ].map((s, i) => (
             <div key={i} className="bg-white border border-slate-100 rounded-[20px] p-4 text-center shadow-sm">
               <div className={`w-8 h-8 mx-auto ${s.bg} ${s.color} rounded-full flex items-center justify-center mb-2`}><s.icon className="w-4 h-4" /></div>
@@ -357,7 +376,8 @@ function ProgressView({ setPage }: any) {
   );
 }
 
-function ProfileView({ setPage }: any) {
+function ProfileView({ setPage, displayName, initials, profile, signOut }: any) {
+  const stats = profile?.stats;
   return (
     <div className="flex-1 overflow-y-auto pb-28 [&::-webkit-scrollbar]:hidden bg-slate-50/50">
       <header className="px-6 py-4 pt-8 sticky top-0 bg-white/90 backdrop-blur-md z-40">
@@ -365,17 +385,21 @@ function ProfileView({ setPage }: any) {
       </header>
       <div className="px-6 py-4 text-center flex flex-col items-center">
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#0357EE] to-blue-400 text-white flex items-center justify-center font-bold text-3xl border-4 border-white shadow-lg font-['Poppins'] mb-4 relative">
-          AK
+          {initials}
           <button className="absolute bottom-0 right-0 w-8 h-8 bg-white text-slate-700 rounded-full flex items-center justify-center shadow-md border border-slate-100">
             <Pencil className="w-4 h-4" />
           </button>
         </div>
-        <h3 className="text-[20px] font-bold font-['Poppins'] text-slate-900">Adekunle</h3>
-        <p className="text-[12px] text-slate-500 font-medium mt-1">Job Seeker • Joined Jan 2025</p>
+        <h3 className="text-[20px] font-bold font-['Poppins'] text-slate-900">{displayName}</h3>
+        <p className="text-[12px] text-slate-500 font-medium mt-1">Job Seeker • InterviewAce member</p>
       </div>
       <div className="px-6 py-2 mb-6">
         <div className="bg-white border border-slate-100 rounded-[24px] p-4 flex justify-between items-center shadow-sm divide-x divide-slate-50">
-          {[{val:"248",label:"Questions"},{val:"12",label:"Tests"},{val:"#342",label:"Rank",blue:true}].map((s,i) => (
+          {[
+            {val: stats ? String(stats.totalSessions) : "—", label:"Questions"},
+            {val: stats ? `${stats.avgScore}%` : "—", label:"Avg Score"},
+            {val: stats ? String(stats.currentStreak) : "—", label:"Streak 🔥", blue:true},
+          ].map((s,i) => (
             <div key={i} className="flex-1 text-center">
               <div className={`font-bold font-['Poppins'] text-lg ${s.blue ? 'text-[#0357EE]' : 'text-slate-900'}`}>{s.val}</div>
               <div className="text-[10px] font-medium text-slate-400">{s.label}</div>
@@ -417,7 +441,7 @@ function ProfileView({ setPage }: any) {
             </button>
           ))}
         </div>
-        <button className="w-full flex items-center justify-center gap-2 py-4 text-red-500 font-bold text-[14px] hover:bg-red-50 rounded-full transition-colors">
+        <button onClick={signOut} className="w-full flex items-center justify-center gap-2 py-4 text-red-500 font-bold text-[14px] hover:bg-red-50 rounded-full transition-colors">
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
       </div>

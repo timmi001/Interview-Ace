@@ -1,0 +1,1 @@
+- [InterviewAce Clerk + DB setup](interviewace-auth-db.md) — Clerk v6/themes v2 wiring, API routing, DB schema decisions for this app.
