@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { 
-  Menu, Bell, ChevronRight, ChevronLeft, Home, FileText, Clock, BarChart2, User, 
+  Bell, ChevronRight, ChevronLeft, Home, FileText, Clock, BarChart2, User, 
   Check, Lock, Trophy, Star, Globe, Shield, HelpCircle, Heart, Share2, Pencil, 
   Flame, Target, Award, TrendingUp, BookOpen, Zap, Code 
 } from "lucide-react";
@@ -54,11 +54,8 @@ export function Dashboard() {
 function HomeView({ setPage, displayName, initials }: { setPage: (p: string) => void; displayName: string; initials: string }) {
   return (
     <>
-      <header className="flex items-center justify-between px-6 py-4 pt-8">
-        <button className="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors">
-          <Menu className="w-6 h-6 text-slate-700" />
-        </button>
-        <div className="flex items-center gap-5">
+      <header className="flex items-center justify-end px-6 py-4 pt-8">
+        <div className="flex items-center gap-4 ml-auto">
           <button onClick={() => setPage("notifications")} className="relative p-1 hover:opacity-80 transition-opacity">
             <Bell className="w-6 h-6 text-slate-700" />
             <span className="absolute -top-0 -right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
