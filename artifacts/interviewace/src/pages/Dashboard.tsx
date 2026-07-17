@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { useUser, useClerk } from "@clerk/react";
 import { 
   Bell, ChevronRight, ChevronLeft, Home, FileText, Clock, BarChart2, User, 
   Check, Lock, Trophy, Star, Globe, Shield, HelpCircle, Heart, Share2, Pencil, 
-  Flame, Target, Award, TrendingUp, BookOpen, Zap, Code 
+  Flame, Target, Award, TrendingUp, BookOpen, Zap, Code, LogOut 
 } from "lucide-react";
 
 // Mock Data
@@ -15,11 +16,18 @@ const CATEGORIES = [
 ];
 
 export function Dashboard() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
   const [page, setPage] = useState("home");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const displayName = "there";
-  const initials = "ME";
+  const displayName = user?.firstName || user?.username || "there";
+  const initials = (() => {
+    if (user?.firstName && user?.lastName) return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    if (user?.firstName) return user.firstName.slice(0, 2).toUpperCase();
+    if (user?.username) return user.username.slice(0, 2).toUpperCase();
+    return "ME";
+  })();
 
   const triggerToast = () => {
     setToastMessage("Quiz Starting...");
@@ -39,7 +47,7 @@ export function Dashboard() {
         {page === "practice" && <PracticeView setPage={setPage} triggerToast={triggerToast} />}
         {page === "mock-tests" && <MockTestsView setPage={setPage} triggerToast={triggerToast} />}
         {page === "progress" && <ProgressView setPage={setPage} />}
-        {page === "profile" && <ProfileView setPage={setPage} displayName={displayName} initials={initials} />}
+        {page === "profile" && <ProfileView setPage={setPage} displayName={displayName} initials={initials} signOut={() => signOut()} />}
         {["aptitude", "numerical", "verbal", "hr-interview", "technical"].includes(page) && (
           <CategoryView categoryId={page} setPage={setPage} triggerToast={triggerToast} />
         )}
@@ -54,8 +62,11 @@ export function Dashboard() {
 function HomeView({ setPage, displayName, initials }: { setPage: (p: string) => void; displayName: string; initials: string }) {
   return (
     <>
-      <header className="flex items-center justify-end px-6 py-4 pt-8">
-        <div className="flex items-center gap-4 ml-auto">
+      <header className="flex items-center justify-between px-6 py-4 pt-8">
+        <button className="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors">
+          <Menu className="w-6 h-6 text-slate-700" />
+        </button>
+        <div className="flex items-center gap-5">
           <button onClick={() => setPage("notifications")} className="relative p-1 hover:opacity-80 transition-opacity">
             <Bell className="w-6 h-6 text-slate-700" />
             <span className="absolute -top-0 -right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
@@ -357,7 +368,7 @@ function ProgressView({ setPage }: any) {
   );
 }
 
-function ProfileView({ setPage, displayName, initials }: any) {
+function ProfileView({ setPage, displayName, initials, signOut }: any) {
   return (
     <div className="flex-1 overflow-y-auto pb-28 [&::-webkit-scrollbar]:hidden bg-slate-50/50">
       <header className="px-6 py-4 pt-8 sticky top-0 bg-white/90 backdrop-blur-md z-40">
@@ -421,6 +432,9 @@ function ProfileView({ setPage, displayName, initials }: any) {
             </button>
           ))}
         </div>
+        <button onClick={signOut} className="w-full flex items-center justify-center gap-2 py-4 text-red-500 font-bold text-[14px] hover:bg-red-50 rounded-full transition-colors">
+          <LogOut className="w-4 h-4" /> Sign Out
+        </button>
       </div>
     </div>
   );
