@@ -63,9 +63,6 @@ function HomeView({ setPage, displayName, initials }: { setPage: (p: string) => 
   return (
     <>
       <header className="flex items-center justify-between px-6 py-4 pt-8">
-        <button className="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors">
-          <Menu className="w-6 h-6 text-slate-700" />
-        </button>
         <div className="flex items-center gap-5">
           <button onClick={() => setPage("notifications")} className="relative p-1 hover:opacity-80 transition-opacity">
             <Bell className="w-6 h-6 text-slate-700" />
