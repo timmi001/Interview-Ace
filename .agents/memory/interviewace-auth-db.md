@@ -1,34 +1,34 @@
 ---
 name: InterviewAce auth + DB setup
-description: Key decisions for Clerk auth integration and PostgreSQL schema in the InterviewAce app.
+description: History of Clerk auth and PostgreSQL being added then removed from InterviewAce.
 ---
 
-## Clerk wiring
+## Current state (Clerk + DB removed)
 
-- `@clerk/react` v6, `@clerk/themes` v2 installed in `artifacts/interviewace`
-- `@clerk/express`, `@clerk/shared`, `http-proxy-middleware` installed in `artifacts/api-server`
-- `publishableKeyFromHost` from `@clerk/react/internal` IS available (v6 exports `./internal`)
-- `@clerk/themes/shadcn.css` IS available as a CSS export — resolves to `dist/themes/shadcn.css` inside pnpm store
-- CSS layer order in `index.css`: `@layer theme, base, clerk, components, utilities;` BEFORE `@import 'tailwindcss'`
-- `vite.config.ts` requires `tailwindcss({ optimize: false })` for Clerk CSS to survive prod builds
+Clerk auth and PostgreSQL were removed on 2026-07-17 at user request.
 
-## API routing
+The app now renders `<Dashboard />` directly from `App.tsx` — no auth, no routing, no database.
+All data in the app is static/mock.
 
-- API server artifact slug: `api-server`, preview path `/api-server`
-- Frontend calls API at `/api-server/api/...` (Replit proxy strips `/api-server` prefix before forwarding to Express)
-- Clerk proxy middleware at `/api/__clerk` in Express → browser hits `/api-server/api/__clerk`
-- Auth is cookie-based for web; no bearer token needed in fetch calls
+## What was removed
 
-**Why:** pnpm workspace monorepo; each artifact gets its own Replit proxy path equal to its slug.
+**Frontend (`artifacts/interviewace`):**
+- `@clerk/react`, `@clerk/themes` uninstalled
+- `src/App.tsx` simplified to a single `<Dashboard />` render
+- `src/lib/api.ts` deleted
+- `src/index.css` clerk layer (`clerk` in `@layer`) and `@import '@clerk/themes/shadcn.css'` removed
+- `public/logo.svg` deleted
 
-## Database schema
+**API Server (`artifacts/api-server`):**
+- `@clerk/express`, `@clerk/shared`, `http-proxy-middleware`, `pg`, `@types/pg` uninstalled
+- `src/middlewares/clerkProxyMiddleware.ts` deleted
+- `src/lib/db.ts` deleted
+- `src/routes/user.ts` deleted
+- `src/routes/index.ts` now only mounts the health router
+- `src/app.ts` is plain Express with cors + pino + `/api` router, no Clerk
 
-Tables: `users` (clerk_user_id UNIQUE), `practice_sessions`, `daily_challenge_progress`, `user_streaks`
-- `getOrCreateUser(clerkUserId)` in `api-server/src/lib/db.ts` handles JIT provisioning
-- Streak logic is in a single UPSERT inside the sessions POST route
+## Known issue (never resolved)
 
-## App routing
-
-- `/` → LandingPage (signed-out) or Dashboard (signed-in) via `<Show when="signed-in/out">`
-- `/sign-in/*?` and `/sign-up/*?` — the `/*?` optional wildcard is required for Clerk OAuth sub-paths
-- `stripBase()` strips BASE_URL prefix from Clerk's routerPush/routerReplace paths (wouter adds it)
+Google OAuth on the sign-up page was not triggering a redirect. Root cause was not confirmed before removal. Likely culprits:
+- The Replit proxy was routing `/api-server/api/...` browser fetches back to the Vite SPA (Vite needed a `server.proxy` config entry to forward those requests to localhost:8080)
+- Possible Replit preview iframe sandbox restriction blocking OAuth redirects

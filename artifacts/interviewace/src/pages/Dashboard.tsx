@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useUser, useClerk } from "@clerk/react";
-import { api, type UserProfile } from "@/lib/api";
+import React, { useState } from "react";
 import { 
   Menu, Bell, ChevronRight, ChevronLeft, Home, FileText, Clock, BarChart2, User, 
   Check, Lock, Trophy, Star, Globe, Shield, HelpCircle, Heart, Share2, Pencil, 
-  Flame, Target, Award, TrendingUp, BookOpen, Zap, Code, LogOut 
+  Flame, Target, Award, TrendingUp, BookOpen, Zap, Code 
 } from "lucide-react";
 
 // Mock Data
@@ -17,29 +15,16 @@ const CATEGORIES = [
 ];
 
 export function Dashboard() {
-  const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
   const [page, setPage] = useState("home");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
 
-  useEffect(() => {
-    if (!isLoaded || !user) return;
-    api.getMe().then(setProfile).catch(console.error);
-  }, [isLoaded, user?.id]);
+  const displayName = "there";
+  const initials = "ME";
 
   const triggerToast = () => {
     setToastMessage("Quiz Starting...");
     setTimeout(() => { setToastMessage(null); }, 1500);
   };
-
-  const displayName = user?.firstName || user?.username || "there";
-  const initials = (() => {
-    if (user?.firstName && user?.lastName) return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
-    if (user?.firstName) return user.firstName.slice(0, 2).toUpperCase();
-    if (user?.username) return user.username.slice(0, 2).toUpperCase();
-    return "ME";
-  })();
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center font-['Inter']">
@@ -53,8 +38,8 @@ export function Dashboard() {
         {page === "home" && <HomeView setPage={setPage} displayName={displayName} initials={initials} />}
         {page === "practice" && <PracticeView setPage={setPage} triggerToast={triggerToast} />}
         {page === "mock-tests" && <MockTestsView setPage={setPage} triggerToast={triggerToast} />}
-        {page === "progress" && <ProgressView setPage={setPage} profile={profile} />}
-        {page === "profile" && <ProfileView setPage={setPage} displayName={displayName} initials={initials} profile={profile} signOut={() => signOut()} />}
+        {page === "progress" && <ProgressView setPage={setPage} />}
+        {page === "profile" && <ProfileView setPage={setPage} displayName={displayName} initials={initials} />}
         {["aptitude", "numerical", "verbal", "hr-interview", "technical"].includes(page) && (
           <CategoryView categoryId={page} setPage={setPage} triggerToast={triggerToast} />
         )}
@@ -296,8 +281,7 @@ function MockTestsView({ setPage, triggerToast }: any) {
   );
 }
 
-function ProgressView({ setPage, profile }: any) {
-  const stats = profile?.stats;
+function ProgressView({ setPage }: any) {
   return (
     <div className="flex-1 overflow-y-auto pb-28 [&::-webkit-scrollbar]:hidden bg-slate-50/50">
       <header className="px-6 py-4 pt-8 sticky top-0 bg-white/90 backdrop-blur-md z-40">
@@ -307,9 +291,9 @@ function ProgressView({ setPage, profile }: any) {
       <div className="px-6 py-2">
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { icon: FileText, bg: "bg-blue-50", color: "text-blue-500", val: stats ? String(stats.totalSessions) : "—", label: "Practiced" },
-            { icon: TrendingUp, bg: "bg-green-50", color: "text-green-500", val: stats ? `${stats.avgScore}%` : "—", label: "Avg Score" },
-            { icon: Flame, bg: "bg-orange-50", color: "text-orange-500", val: stats ? String(stats.currentStreak) : "—", label: "Day Streak" },
+            { icon: FileText, bg: "bg-blue-50", color: "text-blue-500", val: "12", label: "Practiced" },
+            { icon: TrendingUp, bg: "bg-green-50", color: "text-green-500", val: "78%", label: "Avg Score" },
+            { icon: Flame, bg: "bg-orange-50", color: "text-orange-500", val: "4", label: "Day Streak" },
           ].map((s, i) => (
             <div key={i} className="bg-white border border-slate-100 rounded-[20px] p-4 text-center shadow-sm">
               <div className={`w-8 h-8 mx-auto ${s.bg} ${s.color} rounded-full flex items-center justify-center mb-2`}><s.icon className="w-4 h-4" /></div>
@@ -376,8 +360,7 @@ function ProgressView({ setPage, profile }: any) {
   );
 }
 
-function ProfileView({ setPage, displayName, initials, profile, signOut }: any) {
-  const stats = profile?.stats;
+function ProfileView({ setPage, displayName, initials }: any) {
   return (
     <div className="flex-1 overflow-y-auto pb-28 [&::-webkit-scrollbar]:hidden bg-slate-50/50">
       <header className="px-6 py-4 pt-8 sticky top-0 bg-white/90 backdrop-blur-md z-40">
@@ -396,9 +379,9 @@ function ProfileView({ setPage, displayName, initials, profile, signOut }: any) 
       <div className="px-6 py-2 mb-6">
         <div className="bg-white border border-slate-100 rounded-[24px] p-4 flex justify-between items-center shadow-sm divide-x divide-slate-50">
           {[
-            {val: stats ? String(stats.totalSessions) : "—", label:"Questions"},
-            {val: stats ? `${stats.avgScore}%` : "—", label:"Avg Score"},
-            {val: stats ? String(stats.currentStreak) : "—", label:"Streak 🔥", blue:true},
+            {val: "12", label:"Questions"},
+            {val: "78%", label:"Avg Score"},
+            {val: "4", label:"Streak 🔥", blue:true},
           ].map((s,i) => (
             <div key={i} className="flex-1 text-center">
               <div className={`font-bold font-['Poppins'] text-lg ${s.blue ? 'text-[#0357EE]' : 'text-slate-900'}`}>{s.val}</div>
@@ -441,9 +424,6 @@ function ProfileView({ setPage, displayName, initials, profile, signOut }: any) 
             </button>
           ))}
         </div>
-        <button onClick={signOut} className="w-full flex items-center justify-center gap-2 py-4 text-red-500 font-bold text-[14px] hover:bg-red-50 rounded-full transition-colors">
-          <LogOut className="w-4 h-4" /> Sign Out
-        </button>
       </div>
     </div>
   );
